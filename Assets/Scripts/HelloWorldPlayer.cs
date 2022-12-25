@@ -1,21 +1,39 @@
 using Unity.Netcode;
 using UnityEngine;
+using Unity.Collections; 
+ 
 
 namespace HelloWorld
 {
     public class HelloWorldPlayer : NetworkBehaviour
     {
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
+        //set the default spawn direction of the player to be left 
+        public NetworkVariable<FixedString128Bytes> Direction = new NetworkVariable<FixedString128Bytes>(); 
+        //Direction = "left";
+        //try different speeds which will be the number of pixels moved 
+        //in each frame
+        //private float velocity = 3.0; 
+        //private string left = "left"; 
+        //private FixedString32Bytes left32 = FixedString32Bytes(left);
+        private NetworkVariable<FixedString128Bytes> mode = new NetworkVariable<FixedString128Bytes>(); 
+
 
         public override void OnNetworkSpawn()
         {
             if (IsOwner)
             {
-                Move();
+                RandomMove();
             }
         }
 
-        public void Move()
+        public void setRock() {
+            mode.Value = "left"; 
+            Debug.Log("Mode set to rock");
+
+        }
+
+        public void RandomMove()
         {
             if (NetworkManager.Singleton.IsServer)
             {
