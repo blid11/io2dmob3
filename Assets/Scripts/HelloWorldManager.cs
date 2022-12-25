@@ -66,14 +66,18 @@ namespace HelloWorld
 
         static void SubmitNewPosition()
         {   
-            if (GUILayout.Button("Rock")) {
+            if (GUILayout.Button(NetworkManager.Singleton.IsServer ? "Rock" : "Rock")) 
+            {
                 if (NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient )
                 {
+                    Debug.Log("Server setRock"); 
                     foreach (ulong uid in NetworkManager.Singleton.ConnectedClientsIds)
                         NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<HelloWorldPlayer>().setRock();
+                        
                 }
                 else {
                     var playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
+                    Debug.Log("Client setRock"); 
                     var player = playerObject.GetComponent<HelloWorldPlayer>();
                     player.setRock();
                 }

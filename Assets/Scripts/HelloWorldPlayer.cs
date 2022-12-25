@@ -28,8 +28,16 @@ namespace HelloWorld
         }
 
         public void setRock() {
-            mode.Value = "left"; 
-            Debug.Log("Mode set to rock");
+
+            if (NetworkManager.Singleton.IsServer)
+            {
+                mode.Value = "rock"; 
+                Debug.Log("Mode set to rock");
+            }
+            else
+            {
+                SubmitModeRequestServerRpc();
+            }
 
         }
 
@@ -51,6 +59,12 @@ namespace HelloWorld
         void SubmitPositionRequestServerRpc(ServerRpcParams rpcParams = default)
         {
             Position.Value = GetRandomPositionOnPlane();
+        }
+
+        [ServerRpc]
+        void SubmitModeRequestServerRpc(ServerRpcParams rpcParams = default) {
+            mode.Value = "rock"; 
+            Debug.Log("Mode set to rock");
         }
 
         static Vector3 GetRandomPositionOnPlane()
