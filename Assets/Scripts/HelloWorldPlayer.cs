@@ -61,11 +61,18 @@ namespace HelloWorld
             Position.Value = GetRandomPositionOnPlane();
         }
 
+        [ClientRpc]
+        void TestClientRpc(ClientRpcParams rpcParams = default) {
+            Debug.Log("Client test");
+        }
+
         [ServerRpc]
         void SubmitModeRequestServerRpc(ServerRpcParams rpcParams = default) {
             mode.Value = "rock"; 
             Debug.Log("Mode set to rock");
+            TestClientRpc();
         }
+
 
         static Vector3 GetRandomPositionOnPlane()
         {
