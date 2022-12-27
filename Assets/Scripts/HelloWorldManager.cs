@@ -8,6 +8,30 @@ namespace HelloWorld
     {
         private InputManager inputManager; 
         private Camera cameraMain; 
+        //private Vector3 velocity = new Vector3(); 
+        /* public static NetworkVariable<Vector3> lvelocity = new NetworkVariable<Vector3>(); 
+        public static NetworkVariable<Vector3> rvelocity = new NetworkVariable<Vector3>(); 
+        public static NetworkVariable<Vector3> uvelocity = new NetworkVariable<Vector3>(); 
+        public static NetworkVariable<Vector3> dvelocity = new NetworkVariable<Vector3>(); 
+
+        private void setVectors() {
+            lvelocity.Value = new Vector3(-3f, 1f, 0f);
+            rvelocity.Value = new Vector3(3f, 1f, 0f); 
+            uvelocity.Value = new Vector3(0f, 1f, 3f); 
+            dvelocity.Value = new Vector3(0f, 1f, -3f); 
+        } */
+
+        public static Vector3 lvelocity = new Vector3(); 
+        public static Vector3 rvelocity = new Vector3(); 
+        public static Vector3 uvelocity = new Vector3();
+        public static Vector3 dvelocity = new Vector3();
+
+        private void setVectors() {
+            lvelocity = new Vector3(-3f, 1f, 0f);
+            rvelocity = new Vector3(3f, 1f, 0f); 
+            uvelocity = new Vector3(0f, 1f, 3f); 
+            dvelocity = new Vector3(0f, 1f, -3f); 
+        }
 
         private void Awake() {
             inputManager = InputManager.Instance;
@@ -32,6 +56,7 @@ namespace HelloWorld
 
         void OnGUI()
         {
+            setVectors();
             GUILayout.BeginArea(new Rect(10, 10, 300, 300));
             if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
             {
@@ -73,6 +98,9 @@ namespace HelloWorld
                     Debug.Log("Server setRock"); 
                     foreach (ulong uid in NetworkManager.Singleton.ConnectedClientsIds)
                         NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<HelloWorldPlayer>().setRock();
+
+                    foreach (ulong uid in NetworkManager.Singleton.ConnectedClientsIds)    
+                        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<HelloWorldPlayer>().ControlMove(rvelocity);
                         
                 }
                 else {
@@ -80,6 +108,7 @@ namespace HelloWorld
                     Debug.Log("Client setRock"); 
                     var player = playerObject.GetComponent<HelloWorldPlayer>();
                     player.setRock();
+                    player.ControlMove(lvelocity);
                 }
             }
             /* if (GUILayout.Button(NetworkManager.Singleton.IsServer ? "Move" : "Request Position Change"))

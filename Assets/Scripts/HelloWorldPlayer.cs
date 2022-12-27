@@ -10,7 +10,7 @@ namespace HelloWorld
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
         //set the default spawn direction of the player to be left 
         //public NetworkVariable<FixedString128Bytes> Direction = new NetworkVariable<FixedString128Bytes>();
-        public NetworkVariable<Vector3> Velocity = new NetworkVariable<Vector3>();
+        //public NetworkVariable<Vector3> Velocity = new NetworkVariable<Vector3>();
 
         private NetworkVariable<FixedString128Bytes> mode = new NetworkVariable<FixedString128Bytes>(); 
 
@@ -35,6 +35,22 @@ namespace HelloWorld
                 SubmitModeRequestServerRpc();
             }
 
+        }
+
+        //public void ControlMove(NetworkVariable<Vector3> newVelocity){
+        public void ControlMove(Vector3 newVelocity){
+            if (NetworkManager.Singleton.IsServer)
+            {
+                //var newPosition = Position.Value + newVelocity.Value;
+                var newPosition = Position.Value + newVelocity;
+                transform.position = newPosition;
+                Position.Value = newPosition;
+            }
+            else
+            {
+                //SubmitMoveRequestServerRpc(newVelocity.Value);
+                SubmitMoveRequestServerRpc(newVelocity);
+            }
         }
 
         public void RandomMove()
@@ -69,15 +85,16 @@ namespace HelloWorld
             TestClientRpc();
         }
 
+        [ServerRpc]
+        void SubmitMoveRequestServerRpc(Vector3 newVelocity, ServerRpcParams rpcParams = default) {
+            Position.Value = Position.Value + newVelocity;
+            TestClientRpc();
+        }
+
 
         static Vector3 GetRandomPositionOnPlane()
         {
             return new Vector3(Random.Range(-3f, 3f), 1f, Random.Range(-3f, 3f));
-        }
-
-        void GetNewPositionOnPlane()
-        {
-            Position.Value = Position.Value + Velocity.Value;
         }
 
         void Update()
