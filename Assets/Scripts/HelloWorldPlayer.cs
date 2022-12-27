@@ -9,13 +9,9 @@ namespace HelloWorld
     {
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
         //set the default spawn direction of the player to be left 
-        public NetworkVariable<FixedString128Bytes> Direction = new NetworkVariable<FixedString128Bytes>(); 
-        //Direction = "left";
-        //try different speeds which will be the number of pixels moved 
-        //in each frame
-        //private float velocity = 3.0; 
-        //private string left = "left"; 
-        //private FixedString32Bytes left32 = FixedString32Bytes(left);
+        //public NetworkVariable<FixedString128Bytes> Direction = new NetworkVariable<FixedString128Bytes>();
+        public NetworkVariable<Vector3> Velocity = new NetworkVariable<Vector3>();
+
         private NetworkVariable<FixedString128Bytes> mode = new NetworkVariable<FixedString128Bytes>(); 
 
 
@@ -77,6 +73,11 @@ namespace HelloWorld
         static Vector3 GetRandomPositionOnPlane()
         {
             return new Vector3(Random.Range(-3f, 3f), 1f, Random.Range(-3f, 3f));
+        }
+
+        void GetNewPositionOnPlane()
+        {
+            Position.Value = Position.Value + Velocity.Value;
         }
 
         void Update()
