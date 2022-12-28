@@ -6,6 +6,14 @@ namespace HelloWorld
 {
     public class HelloWorldManager : MonoBehaviour
     {
+        // Start is called before the first frame update
+/*         void Start()
+        {
+        
+        } */
+
+        // Update is called once per frame
+
         private Camera cameraMain; 
         //private Vector3 velocity = new Vector3(); 
         /* public static NetworkVariable<Vector3> lvelocity = new NetworkVariable<Vector3>(); 
@@ -20,6 +28,7 @@ namespace HelloWorld
             dvelocity.Value = new Vector3(0f, 1f, -3f); 
         } */
 
+        public static Vector3 velocity = new Vector3(); 
         public static Vector3 lvelocity = new Vector3(); 
         public static Vector3 rvelocity = new Vector3(); 
         public static Vector3 uvelocity = new Vector3();
@@ -80,23 +89,28 @@ namespace HelloWorld
         private void SwipeDirection(Vector2 direction){
             if (Vector2.Dot(Vector2.up, direction) > directionThreshold){
                 Debug.Log("Swipe up");
+                velocity = uvelocity; 
             }
             else if (Vector2.Dot(Vector2.down, direction) > directionThreshold){
                 Debug.Log("Swipe down");
+                velocity = dvelocity; 
             }
             else if (Vector2.Dot(Vector2.left, direction) > directionThreshold){
                 Debug.Log("Swipe left");
+                velocity = lvelocity; 
             }
             else if (Vector2.Dot(Vector2.right, direction) > directionThreshold){
                 Debug.Log("Swipe right");
+                velocity = rvelocity; 
             }
         }
 
         private void setVectors() {
-            lvelocity = new Vector3(-3f, 1f, 0f);
-            rvelocity = new Vector3(3f, 1f, 0f); 
-            uvelocity = new Vector3(0f, 1f, 3f); 
-            dvelocity = new Vector3(0f, 1f, -3f); 
+            lvelocity = new Vector3(1f, 0f, 1f);
+            rvelocity = new Vector3(1f, 0f, 1f); 
+            uvelocity = new Vector3(0f, 1f, 1f); 
+            dvelocity = new Vector3(0f, -1f, 1f); 
+            velocity = lvelocity;
         }
 
         void OnGUI()
@@ -111,7 +125,8 @@ namespace HelloWorld
             {
                 StatusLabels();
 
-                SubmitNewPosition();
+                SubmitNewMode();
+
             }
 
             GUILayout.EndArea();
@@ -134,7 +149,7 @@ namespace HelloWorld
             GUILayout.Label("Mode: " + mode);
         }
 
-        static void SubmitNewPosition()
+        static void SubmitNewMode()
         {   
             if (GUILayout.Button(NetworkManager.Singleton.IsServer ? "Rock" : "Rock")) 
             {
@@ -170,6 +185,25 @@ namespace HelloWorld
                     player.RandomMove();
                 }
             } */
+        }
+
+        void Update()
+        {
+            //update the player's position based on any swipes 
+            //if a swipe has been registered in the last 5 milliseconds?
+
+            if (NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient ) {
+                foreach (ulong uid in NetworkManager.Singleton.ConnectedClientsIds)    
+                    NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(uid).GetComponent<HelloWorldPlayer>().ControlMove(velocity);
+                        
+            }
+            else 
+            {
+                var playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
+                Debug.Log("Server move"); 
+                var player = playerObject.GetComponent<HelloWorldPlayer>();
+                player.ControlMove(velocity);
+            }
         }
     }
 }

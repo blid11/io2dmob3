@@ -42,7 +42,7 @@ namespace HelloWorld
             if (NetworkManager.Singleton.IsServer)
             {
                 //var newPosition = Position.Value + newVelocity.Value;
-                var newPosition = Position.Value + newVelocity;
+                var newPosition = Position.Value + 0.01f * newVelocity;
                 transform.position = newPosition;
                 Position.Value = newPosition;
             }
@@ -87,7 +87,7 @@ namespace HelloWorld
 
         [ServerRpc]
         void SubmitMoveRequestServerRpc(Vector3 newVelocity, ServerRpcParams rpcParams = default) {
-            Position.Value = Position.Value + newVelocity;
+            Position.Value = Position.Value + 0.01f * newVelocity;
             TestClientRpc();
         }
 
