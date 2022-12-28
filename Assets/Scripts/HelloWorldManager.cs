@@ -6,7 +6,6 @@ namespace HelloWorld
 {
     public class HelloWorldManager : MonoBehaviour
     {
-        private InputManager inputManager; 
         private Camera cameraMain; 
         //private Vector3 velocity = new Vector3(); 
         /* public static NetworkVariable<Vector3> lvelocity = new NetworkVariable<Vector3>(); 
@@ -26,33 +25,58 @@ namespace HelloWorld
         public static Vector3 uvelocity = new Vector3();
         public static Vector3 dvelocity = new Vector3();
 
+        [SerializeField]
+        private float minimumDistance = .2f;
+        [SerializeField]
+        private float maximumTime = 1f; 
+
+        private InputManager inputManager;
+        private Vector2 startPosition; 
+        private float startTime;
+        private Vector2 endPosition; 
+        private float endTime; 
+
+        private void Awake() {
+            inputManager = InputManager.Instance; 
+        }
+
+        private void OnEnable() {
+            inputManager.OnStartTouch += SwipeStart;
+            inputManager.OnEndTouch += SwipeEnd; 
+        }
+
+        private void OnDisable() {
+            inputManager.OnStartTouch -= SwipeStart;
+            inputManager.OnEndTouch -= SwipeEnd;
+        }
+
+        private void SwipeStart(Vector2 position, float time) {
+            startPosition = position; 
+            startTime = time; 
+        }
+
+        private void SwipeEnd(Vector2 position, float time) {
+            endPosition = position; 
+            endTime = time;
+            DetectSwipe(); 
+        }
+
+        private void DetectSwipe() {
+            //measure the distance between our ending and start position 
+            //make sure distance and time are sufficient for a swipe
+            if (Vector3.Distance(startPosition, endPosition) >= minimumDistance &&
+                (endTime - startTime) <= maximumTime) {
+                    Debug.DrawLine(startPosition, endPosition, Color.red, 5f);
+            }
+
+        }
+
         private void setVectors() {
             lvelocity = new Vector3(-3f, 1f, 0f);
             rvelocity = new Vector3(3f, 1f, 0f); 
             uvelocity = new Vector3(0f, 1f, 3f); 
             dvelocity = new Vector3(0f, 1f, -3f); 
         }
-
-        private void Awake() {
-            inputManager = InputManager.Instance;
-            cameraMain = Camera.main; 
-        }
-
-        private void OnEnable() {
-            inputManager.OnStartTouch += Move;
-        }
-
-        private void OnDisable() {
-            inputManager.OnEndTouch -= Move; 
-        }
-
-        public void Move(Vector2 screenPosition, float time) {
-            /* Vector3 screenCoordinates = new Vector3(screenPosition.x, screenPosition.y, cameraMain.nearClipPlane);
-            Vector3 worldCoordinates = cameraMain.ScreenToWorldPoint(screenCoordinates); 
-            worldCoordinates.z = 0; 
-            transform.position = worldCoordinates;  */
-            Debug.Log("Touch started ");
-        }   
 
         void OnGUI()
         {

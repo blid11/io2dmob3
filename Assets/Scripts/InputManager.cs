@@ -1,9 +1,58 @@
 using UnityEngine;
 using UnityEngine.InputSystem; 
 
+[DefaultExecutionOrder(-1)] 
 public class InputManager : Singleton<InputManager>
 {
-    public delegate void StartTouchEvent(Vector2 position, float time); 
+    #region Events
+    public delegate void StartTouch(Vector2 position, float time);
+    public event StartTouch OnStartTouch;
+    public delegate void EndTouch(Vector2 position, float time);
+    public event StartTouch OnEndTouch; 
+    #endregion
+
+    private TouchControls touchControls; 
+    private Camera mainCamera; 
+
+    private void Awake(){
+        touchControls = new TouchControls(); 
+        mainCamera = Camera.main; 
+    }
+
+    private void OnEnable() {
+        touchControls.Enable();
+
+    }
+
+    private void OnDisable() {
+        touchControls.Disable();
+    }
+
+    private void Start() {
+        //Subscribe to event and pass in the info 
+        //from an event to a function 
+        touchControls.Touch.PrimaryContact.started += ctx => StartTouchPrimary(ctx); 
+        touchControls.Touch.PrimaryContact.canceled += ctx => EndTouchPrimary(ctx); 
+    }
+
+    private void StartTouchPrimary(InputAction.CallbackContext context) {
+        if (OnStartTouch != null) OnStartTouch(Utils.ScreenToWorld(mainCamera, touchControls.Touch.PrimaryPosition.ReadValue<Vector2>()), (float)context.startTime);
+
+    }
+
+    private void EndTouchPrimary(InputAction.CallbackContext context) {
+        if (OnEndTouch != null) OnEndTouch(Utils.ScreenToWorld(mainCamera, touchControls.Touch.PrimaryPosition.ReadValue<Vector2>()), (float)context.time);
+    }
+
+    public Vector2 PrimaryPosition() {
+        return Utils.ScreenToWorld(mainCamera, touchControls.Touch.PrimaryPosition.ReadValue<Vector2>());
+    }
+
+}
+
+
+
+/*     public delegate void StartTouchEvent(Vector2 position, float time); 
     public event StartTouchEvent OnStartTouch;
     public delegate void EndTouchEvent(Vector2 position, float time); 
     public event EndTouchEvent OnEndTouch;
@@ -43,4 +92,4 @@ public class InputManager : Singleton<InputManager>
     }
 
 
-}
+} */
